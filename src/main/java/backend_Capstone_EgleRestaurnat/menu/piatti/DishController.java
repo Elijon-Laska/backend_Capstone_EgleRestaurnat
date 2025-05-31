@@ -5,6 +5,7 @@ import backend_Capstone_EgleRestaurnat.menu.categorie.CategoryType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -20,8 +21,11 @@ public class DishController {
     @Autowired
     private CategoryService categoryService;
 
-    // Recupera tutti i piatti
+    // Recupera tutti i piatti disponibili nel ristorante
+    // Accessibile a tutti gli utenti (USER e ADMIN)
+    // Restituisce una lista di tutti i piatti con informazioni base
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<List<DishResponse>> getAllDishes() {
         List<DishResponse> dishResponses = dishService.getAllDishes().stream()
                 .map(dish -> new DishResponse(dish.getId(), dish.getName(), dish.getComposition(),
@@ -30,8 +34,11 @@ public class DishController {
         return ResponseEntity.ok(dishResponses);
     }
 
-    // Recupera piatti per categoria
+    // Recupera piatti per una specifica categoria
+    // Accessibile a tutti gli utenti (USER e ADMIN)
+    // Permette di filtrare i piatti per tipo di categoria (antipasti, primi, secondi, ecc.)
     @GetMapping("/category/{categoryType}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<List<DishResponse>> getDishesByCategory(@PathVariable CategoryType categoryType) {
         List<DishResponse> dishes = dishService.getDishesByCategory(categoryService.getCategoryByType(categoryType))
                 .stream()
@@ -41,8 +48,12 @@ public class DishController {
         return ResponseEntity.ok(dishes);
     }
 
-    // Crea un nuovo piatto
+    // Crea un nuovo piatto nel menu
+    // Accessibile solo agli ADMIN
+    // Richiede dati del piatto e un'immagine
+    // L'immagine viene caricata tramite Cloudinary
     @PostMapping(consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DishResponse> createDish(@RequestPart("dish") DishRequest dishRequest,
                                                    @RequestPart("image") MultipartFile image) throws IOException {
         Dish newDish = dishService.createDish(dishRequest, image);
@@ -50,8 +61,11 @@ public class DishController {
                 newDish.getPrice(), newDish.getImageUrl(), newDish.getCategory().getCategoryType()));
     }
 
-    // Aggiorna un piatto
+    // Aggiorna un piatto esistente
+    // Accessibile solo agli ADMIN
+    // Permette di modificare i dati del piatto e/o l'immagine
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DishResponse> updateDish(@PathVariable Long id,
                                                    @RequestPart("dish") DishRequest dishRequest,
                                                    @RequestPart("image") MultipartFile image) throws IOException {
@@ -60,8 +74,11 @@ public class DishController {
                 updatedDish.getPrice(), updatedDish.getImageUrl(), updatedDish.getCategory().getCategoryType()));
     }
 
-    // Elimina un piatto
+    // Elimina un piatto dal menu
+    // Accessibile solo agli ADMIN
+    // Rimuove il piatto e la sua immagine da Cloudinary
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteDish(@PathVariable Long id) {
         dishService.deleteDish(id);
         return ResponseEntity.ok("Piatto eliminato con successo");
