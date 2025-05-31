@@ -21,11 +21,9 @@ public class DishController {
     @Autowired
     private CategoryService categoryService;
 
-    // Recupera tutti i piatti disponibili nel ristorante
-    // Accessibile a tutti gli utenti (USER e ADMIN)
-    // Restituisce una lista di tutti i piatti con informazioni base
+
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_USER')")
+
     public ResponseEntity<List<DishResponse>> getAllDishes() {
         List<DishResponse> dishResponses = dishService.getAllDishes().stream()
                 .map(dish -> new DishResponse(dish.getId(), dish.getName(), dish.getComposition(),
@@ -38,7 +36,7 @@ public class DishController {
     // Accessibile a tutti gli utenti (USER e ADMIN)
     // Permette di filtrare i piatti per tipo di categoria (antipasti, primi, secondi, ecc.)
     @GetMapping("/category/{categoryType}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+
     public ResponseEntity<List<DishResponse>> getDishesByCategory(@PathVariable CategoryType categoryType) {
         List<DishResponse> dishes = dishService.getDishesByCategory(categoryService.getCategoryByType(categoryType))
                 .stream()

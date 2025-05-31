@@ -1,5 +1,6 @@
 package backend_Capstone_EgleRestaurnat.auth;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,66 +19,38 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-
 public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
-
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
-                .csrf(csrf -> csrf.disable()) // Disabilita CSRF (non necessario per API REST)
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        // Accesso pubblico per autenticazione
-                        // Permette a tutti di accedere alle API di login e registrazione
-                        .requestMatchers("/api/auth/**").permitAll()
-                        
-                        // Solo gli ADMIN possono gestire le categorie
-                        // Questo include creazione, modifica e eliminazione di categorie
-                        // Tutti gli utenti possono vedere le categorie (GET)
-                        .requestMatchers("/api/categories/**").hasRole("ADMIN")
-                        
-                        // Solo gli ADMIN possono gestire i piatti
-                        // Questo include creazione, modifica e eliminazione di piatti
-                        // Tutti gli utenti possono vedere i piatti (GET)
-                        .requestMatchers("/api/dishes/**").hasRole("ADMIN")
-                        
-                        // Solo gli ADMIN possono gestire gli utenti
-                        // Questo include creazione, modifica, eliminazione e blocco/sblocco di utenti
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        
-                        // Eccezione per la visualizzazione dei piatti
-                        // Tutti gli utenti (USER e ADMIN) possono vedere i piatti
-                        // Questo sovrascrive la regola precedente per /api/dishes/**
-                        .requestMatchers("/api/dishes").permitAll()
-                        
-                        // Tutte le altre richieste richiedono autenticazione
-                        // Questo include tutte le API non specificamente menzionate sopra
-                        .anyRequest().authenticated()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()  // Login e registrazione
+                        .requestMatchers("/api/dishes/category/**").permitAll()  // Accesso pubblico alle categorie
+                        .requestMatchers("/api/dishes").permitAll()   // Visualizzazione piatti
+                        .requestMatchers("/api/categories").permitAll() // Visualizzazione categorie
+                        .requestMatchers("/api/prenotazioni").permitAll() // Creazione prenotazioni
+
+                        // Accesso amministratore
+                        .requestMatchers("/api/categories/**").hasRole("ADMIN") // Gestione categorie
+                        .requestMatchers("/api/dishes/**").hasRole("ADMIN")     // Gestione piatti
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")      // Gestione utenti
+
+                        .anyRequest().permitAll()
                 )
-                
-                // Gestione delle eccezioni di autenticazione
-                // Quando un utente non autenticato tenta di accedere a una risorsa protetta
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                
-                // Gestione delle sessioni
-                // Sessione stateless per JWT
-                // Ogni richiesta deve includere il token JWT
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // Aggiungi il filtro JWT
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
