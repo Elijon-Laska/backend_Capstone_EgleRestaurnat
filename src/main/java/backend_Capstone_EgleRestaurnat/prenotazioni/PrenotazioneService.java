@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -66,6 +67,12 @@ public class PrenotazioneService {
             throw new RuntimeException("Prenotazione non trovata");
         }
         return new PrenotazioneResponse(prenotazione);
+    }
+    public List<PrenotazioneResponse> getAllPrenotazioni() {
+        return prenotazioneRepository.findAll()
+                .stream()
+                .map(PrenotazioneResponse::new)
+                .toList();
     }
 
     @Transactional

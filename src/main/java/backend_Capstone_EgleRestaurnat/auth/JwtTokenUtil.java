@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.nio.charset.StandardCharsets;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenUtil {
@@ -42,7 +44,7 @@ public class JwtTokenUtil {
     // Estrae tutti i claims dal token JWT
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(secret)
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -55,6 +57,7 @@ public class JwtTokenUtil {
 
     // Genera un token JWT per l'utente, includendo i ruoli
     public String generateToken(UserDetails userDetails) {
+        System.out.println("JWT SECRET IN USO: " + secret);
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
         List<String> roles = authorities.stream()
                                         .map(GrantedAuthority::getAuthority)
@@ -65,7 +68,7 @@ public class JwtTokenUtil {
                 .claim("roles", roles) // Aggiunge i ruoli come claim
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(SignatureAlgorithm.HS256, Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
                 .compact();
     }
 

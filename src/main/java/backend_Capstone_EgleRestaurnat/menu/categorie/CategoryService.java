@@ -23,7 +23,7 @@ public class CategoryService {
 
     // Recupera tutte le categorie
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+        return categoryRepository.findAllWithDishes();
     }
 
     // Trova una categoria per tipo
@@ -38,4 +38,5 @@ public class CategoryService {
                 .orElseThrow(() -> new EntityNotFoundException("Categoria con ID " + id + " non trovata."));
         categoryRepository.delete(category);
     }
+
 }

@@ -8,12 +8,20 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/prenotazioni")
 public class PrenotazioneController {
 
     @Autowired
     private PrenotazioneService prenotazioneService;
+    // Solo admin può vedere tutte le prenotazioni
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<PrenotazioneResponse> getAllPrenotazioni() {
+        return prenotazioneService.getAllPrenotazioni();
+    }
 
     // Crea una nuova prenotazione (accessibile a tutti)
     @PostMapping

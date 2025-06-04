@@ -4,6 +4,7 @@ package backend_Capstone_EgleRestaurnat.auth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -33,17 +34,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()  // Login e registrazione
-                        .requestMatchers("/api/dishes/category/**").permitAll()  // Accesso pubblico alle categorie
-                        .requestMatchers("/api/dishes").permitAll()   // Visualizzazione piatti
-                        .requestMatchers("/api/categories").permitAll() // Visualizzazione categorie
-                        .requestMatchers("/api/prenotazioni").permitAll() // Creazione prenotazioni
 
-                        // Accesso amministratore
-                        .requestMatchers("/api/categories/**").hasRole("ADMIN") // Gestione categorie
-                        .requestMatchers("/api/dishes/**").hasRole("ADMIN")     // Gestione piatti
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")      // Gestione utenti
+
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dishes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dishes/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dishes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dishes/category").permitAll()
+
+
+                        .requestMatchers("/api/dishes/category/**").permitAll()
+                        .requestMatchers("/api/prenotazioni").permitAll()
+
 
                         .anyRequest().permitAll()
                 )

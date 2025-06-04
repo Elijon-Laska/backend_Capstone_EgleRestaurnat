@@ -6,8 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.ArrayList;
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
@@ -19,11 +20,19 @@ public class CategoryController {
     // Accessibile a tutti gli utenti (USER e ADMIN)
     // Restituisce una lista di tutte le categorie con i relativi piatti
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         List<CategoryResponse> categoryResponses = categoryService.getAllCategories().stream()
-                .map(category -> new CategoryResponse(category.getId(), category.getCategoryType(),
-                        category.getDishes().stream().map(Dish::getName).toList()))
+                .map(category -> {
+                    // Crea una nuova lista senza toccare direttamente la PersistentSet
+                    List<Dish> dishes = category.getDishes() == null
+                            ? List.of()
+                            : category.getDishes().stream().toList();
+                    return new CategoryResponse(
+                            category.getId(),
+                            category.getCategoryType(),
+                            dishes.stream().map(Dish::getName).toList()
+                    );
+                })
                 .toList();
         return ResponseEntity.ok(categoryResponses);
     }
@@ -32,7 +41,7 @@ public class CategoryController {
     // Accessibile a tutti gli utenti (USER e ADMIN)
     // Permette di ottenere i dettagli di una singola categoria
     @GetMapping("/type/{categoryType}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+
     public ResponseEntity<CategoryResponse> getCategoryByType(@PathVariable CategoryType categoryType) {
         Category category = categoryService.getCategoryByType(categoryType);
         return ResponseEntity.ok(new CategoryResponse(category.getId(), category.getCategoryType(),
