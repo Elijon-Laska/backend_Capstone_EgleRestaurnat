@@ -21,9 +21,9 @@ public class AuthRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // Creazione dell'utente admin se non esiste
-        Optional<AppUser> adminUser = appUserService.findByEmail("admin@example.com");
+        Optional<AppUser> adminUser = appUserService.findByEmail("elijonlaska95@gmail.com");
         if (adminUser.isEmpty()) {
-            appUserService.registerUser("admin@example.com", "Adm1n!pwd", "Admin", "Admin", Set.of(Role.ROLE_ADMIN));
+            appUserService.registerUser("elijonlaska95@gmail.com", "Adm1n!pwd", "Admin", "Admin", Set.of(Role.ROLE_ADMIN));
         }
 
         // Creazione dell'utente user se non esiste

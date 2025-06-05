@@ -51,31 +51,6 @@ public class EmailSenderService {
         sendEmail(to, subject, body);
     }
 
-    // Email di conferma ordine
-    public void sendOrderConfirmationEmail(String to, String nome, String cognome, String orderId, double totalAmount) throws MessagingException {
-        String subject = "Conferma ordine su " + appName;
-        String body = """
-            Caro/a %s %s,
-
-            Grazie per aver ordinato su %s!
-            
-            Dettagli ordine:
-            ID ordine: %s
-            Importo totale: €%.2f
-            
-            Il tuo ordine sarà pronto per la consegna nel tempo stimato.
-            
-            Per qualsiasi domanda o assistenza, contattaci:
-            Email: %s
-            Tel: %s
-            Indirizzo: %s
-            
-            Cordiali saluti,
-            Team %s
-            """.formatted(nome, cognome, appName, orderId, totalAmount, appEmail, appPhone, appAddress, appName);
-
-        sendEmail(to, subject, body);
-    }
 
     // Email di conferma prenotazione
     public void sendReservationConfirmationEmail(String to, String nome, String cognome, String reservationId, String date, int guests) throws MessagingException {
@@ -201,6 +176,11 @@ public class EmailSenderService {
             log.error("Errore generale nell'invio dell'email a {}: {}", to, e.getMessage());
             throw new MessagingException("Errore nell'invio dell'email", e);
         }
+    }
+
+    // Metodo pubblico per inviare email semplici
+    public void sendSimpleEmail(String to, String subject, String body) throws MessagingException {
+        sendEmail(to, subject, body);
     }
 
     // Metodo per inviare email con allegati (es. menu, ricevute)
