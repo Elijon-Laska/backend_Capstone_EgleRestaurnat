@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
 
@@ -46,10 +48,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/dishes/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/dishes/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/dishes/category").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/prenotazioni").permitAll()
 
 
                         .requestMatchers("/api/dishes/category/**").permitAll()
                         .requestMatchers("/api/prenotazioni").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/prenotazioni/*/conferma").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/prenotazioni/*/annulla").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/prenotazioni").hasRole("ADMIN")
 
 
                         .anyRequest().permitAll()

@@ -2,6 +2,7 @@ package backend_Capstone_EgleRestaurnat.prenotazioni;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -40,16 +41,24 @@ public class PrenotazioneController {
     // Conferma una prenotazione (accessibile solo agli admin)
     @PutMapping("/{codice}/conferma")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> confermaPrenotazione(@PathVariable String codice) {
-        prenotazioneService.confermaPrenotazione(codice);
-        return ResponseEntity.ok("Prenotazione confermata con successo");
+    public ResponseEntity<String> confermaPrenotazione(@PathVariable String codice) {
+        try {
+            prenotazioneService.confermaPrenotazione(codice);
+            return ResponseEntity.ok("Prenotazione confermata con successo");
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
 
     // Annulla una prenotazione (accessibile solo agli admin)
     @PutMapping("/{codice}/annulla")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> annullaPrenotazione(@PathVariable String codice) {
-        prenotazioneService.annullaPrenotazione(codice);
-        return ResponseEntity.ok("Prenotazione annullata con successo");
+    public ResponseEntity<String> annullaPrenotazione(@PathVariable String codice) {
+        try {
+            prenotazioneService.annullaPrenotazione(codice);
+            return ResponseEntity.ok("Prenotazione annullata con successo");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
-}
+    }
