@@ -67,14 +67,24 @@ public class DishController {
     // Aggiorna un piatto esistente
     // Accessibile solo agli ADMIN
     // Permette di modificare i dati del piatto e/o l'immagine
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<DishResponse> updateDish(@PathVariable Long id,
-                                                   @RequestPart("dish") DishRequest dishRequest,
-                                                   @RequestPart("image") MultipartFile image) throws IOException {
+    public ResponseEntity<DishResponse> updateDish(
+            @PathVariable Long id,
+            @RequestPart("dish") String dishJson,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        DishRequest dishRequest = mapper.readValue(dishJson, DishRequest.class);
         Dish updatedDish = dishService.updateDish(id, dishRequest, image);
-        return ResponseEntity.ok(new DishResponse(updatedDish.getId(), updatedDish.getName(), updatedDish.getComposition(),
-                updatedDish.getPrice(), updatedDish.getImageUrl(), updatedDish.getCategory().getCategoryType()));
+        return ResponseEntity.ok(new DishResponse(
+                updatedDish.getId(),
+                updatedDish.getName(),
+                updatedDish.getComposition(),
+                updatedDish.getPrice(),
+                updatedDish.getImageUrl(),
+                updatedDish.getCategory().getCategoryType()
+        ));
     }
 
     // Elimina un piatto dal menu
