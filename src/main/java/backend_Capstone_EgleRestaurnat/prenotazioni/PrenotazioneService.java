@@ -82,7 +82,10 @@ public class PrenotazioneService {
             throw new RuntimeException("Prenotazione non trovata");
         }
         if (prenotazione.isAnnullata()) {
-            throw new RuntimeException("Prenotazione già annullata");
+            throw new IllegalStateException("Prenotazione già annullata");
+        }
+        if (prenotazione.isConfermata()) {
+            throw new IllegalStateException("Prenotazione già confermata");
         }
         prenotazione.setConfermata(true);
         prenotazioneRepository.save(prenotazione);
