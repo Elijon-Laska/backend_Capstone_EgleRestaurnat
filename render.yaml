@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: backend_Capstone_EgleRestaurnat
-    env: java
-    buildCommand: "./mvnw clean package -DskipTests"
-    startCommand: "java -jar target/backend_Capstone_EgleRestaurnat-0.0.1-SNAPSHOT.jar"
